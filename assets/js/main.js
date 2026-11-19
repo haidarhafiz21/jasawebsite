@@ -376,6 +376,63 @@
   }
   $$('[data-split]').forEach(splitWords);
 
+  /* ---------- Nama besar di footer: dipecah per huruf ---------- */
+  var giant = $('.ftr__giant');
+  if (giant) {
+    var ci = 0;
+    Array.prototype.slice.call(giant.childNodes).forEach(function (n) {
+      if (n.nodeType === 3) {
+        var frag = document.createDocumentFragment();
+        n.textContent.split('').forEach(function (ch) {
+          var s = document.createElement('span');
+          s.className = 'ch';
+          s.textContent = ch === ' ' ? ' ' : ch;
+          s.style.setProperty('--i', ci++);
+          frag.appendChild(s);
+        });
+        giant.replaceChild(frag, n);
+      } else if (n.nodeType === 1) {
+        n.classList.add('ch');
+        n.style.setProperty('--i', ci++);
+      }
+    });
+    giant.setAttribute('data-reveal', 'group');
+  }
+
+  /* ---------- Tombol: teks bergulir saat kursor di atasnya ---------- */
+  if (fine.matches && !reduce.matches) {
+    $$('.btn').forEach(function (b) {
+      Array.prototype.slice.call(b.childNodes).forEach(function (n) {
+        if (n.nodeType !== 3 || !n.textContent.trim()) return;
+        var txt = n.textContent.trim();
+        var wrap = document.createElement('span');
+        wrap.className = 'btn__t';
+        var a = document.createElement('span');
+        a.textContent = txt;
+        var c = document.createElement('span');
+        c.textContent = txt;
+        c.setAttribute('aria-hidden', 'true');
+        wrap.appendChild(a);
+        wrap.appendChild(c);
+        b.replaceChild(wrap, n);
+      });
+    });
+  }
+
+  /* ---------- Garis progres baca ---------- */
+  var bar = $('#progress');
+  var barP = -1;
+  if (bar) {
+    tasks.push(function () {
+      var max = doc.scrollHeight - window.innerHeight;
+      var p = max > 0 ? clamp(sy / max, 0, 1) : 0;
+      if (Math.abs(p - barP) < 0.0005) return;
+      barP = p;
+      bar.style.transform = 'scaleX(' + p.toFixed(4) + ')';
+    });
+    wake(4);
+  }
+
   /* ---------- Muncul saat digulir ---------- */
   $$('[data-reveal="stagger"]').forEach(function (g) {
     Array.prototype.forEach.call(g.children, function (c, i) { c.style.setProperty('--i', i); });
@@ -566,6 +623,16 @@
       kick();
     });
     m.addEventListener('pointerleave', function () { inside = false; tx = 0; ty = 0; kick(); });
+  });
+
+  // Kartu layanan & harga: cahaya lembut mengikuti kursor
+  $$('.svc, .plan').forEach(function (card) {
+    card.addEventListener('pointermove', function (e) {
+      if (e.pointerType !== 'mouse') return;
+      var r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX - r.left).toFixed(0) + 'px');
+      card.style.setProperty('--my', (e.clientY - r.top).toFixed(0) + 'px');
+    });
   });
 
   // Tombol "magnet"

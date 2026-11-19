@@ -1189,7 +1189,7 @@ html:not(.js) .rot__w:not(:first-child) { display: none; }
   -webkit-text-stroke: 1px rgba(244, 239, 230, .24);
   user-select: none;
 }
-.ftr__giant span { color: var(--clay); -webkit-text-stroke: 0; }
+.ftr__giant .ftr__dot { color: var(--clay); -webkit-text-stroke: 0; }
 .ftr__bottom {
   display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px 24px;
   margin-top: clamp(22px, 3vw, 34px);
@@ -1310,6 +1310,42 @@ html:not(.js) .rot__w:not(:first-child) { display: none; }
   .js [data-speed] { will-change: translate; }
 }
 
+/* ---------- Sentuhan tambahan ---------- */
+/* garis progres baca */
+.progress { position: fixed; inset: 0 0 auto 0; height: 2px; z-index: 60; pointer-events: none; }
+.progress span { display: block; height: 100%; background: var(--clay); transform-origin: 0 50%; transform: scaleX(0); }
+
+/* teks tombol bergulir saat hover */
+.btn__t { display: inline-flex; flex-direction: column; height: 1.2em; line-height: 1.2; overflow: hidden; }
+.btn__t > span { display: block; transition: transform .55s var(--ease); }
+.btn:hover .btn__t > span { transform: translate3d(0, -100%, 0); }
+
+/* sorotan cahaya mengikuti kursor pada kartu layanan & harga */
+.svc, .plan { isolation: isolate; }
+.svc::before, .plan::before {
+  content: "";
+  position: absolute; inset: 0; z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(280px circle at var(--mx, 50%) var(--my, 0%), rgba(180, 85, 44, .1), transparent 65%);
+  opacity: 0;
+  transition: opacity .5s ease;
+  pointer-events: none;
+}
+.plan--featured::before { background: radial-gradient(280px circle at var(--mx, 50%) var(--my, 0%), rgba(235, 169, 130, .2), transparent 65%); }
+@media (hover: hover) and (pointer: fine) {
+  .svc:hover::before, .plan:hover::before { opacity: 1; }
+}
+
+/* nama besar di footer muncul huruf demi huruf */
+.js .ftr__giant .ch {
+  display: inline-block;
+  opacity: 0;
+  transform: translate3d(0, 55%, 0);
+  transition: opacity .8s ease, transform 1.3s var(--ease);
+  transition-delay: calc(var(--i, 0) * 45ms);
+}
+.js .ftr__giant.is-in .ch { opacity: 1; transform: none; }
+
 /* =========================================================
    RESPONSIF
    ========================================================= */
@@ -1417,6 +1453,7 @@ html:not(.js) .rot__w:not(:first-child) { display: none; }
   .pan img, .browser__screen--fit img { transform: none !important; }
   .work__stage { transform: none !important; }
   .js .reel__tilt { transform: none !important; }
+  .js .ftr__giant .ch { opacity: 1 !important; transform: none !important; }
   .reel__screen .reel__img, .reel__slide { animation: none !important; }
   .reel__dot.is-on span { animation: none !important; transform: scaleX(1); }
 }
