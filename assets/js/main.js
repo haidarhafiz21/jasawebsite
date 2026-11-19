@@ -298,7 +298,7 @@
       swapT = setTimeout(function () {
         rNo.textContent = (ri < 9 ? '0' : '') + (ri + 1);
         rName.textContent = d.getAttribute('data-name');
-        rCat.textContent = d.getAttribute('data-cat');
+        if (rCat) rCat.textContent = d.getAttribute('data-cat') || '';
         rUrl.textContent = d.getAttribute('data-url');
         cap.classList.remove('is-swap');
       }, 230);
@@ -529,34 +529,6 @@
     }
   });
 
-  // Cuplikan hero: miring 3D, menjadi datar saat digulir; sedikit mengikuti mouse di layar besar
-  var tilt = $('#reelTilt');
-  var hero = $('.hero');
-  var mx = 0, my = 0, cRX = 16, cRY = 0, cS = 0.94;
-  if (tilt && reel) {
-    hero.addEventListener('pointermove', function (e) {
-      if (!pxOn || e.pointerType !== 'mouse') return;
-      mx = e.clientX / window.innerWidth - 0.5;
-      my = e.clientY / window.innerHeight - 0.5;
-      wake(90);
-    }, { passive: true });
-    hero.addEventListener('pointerleave', function () { mx = 0; my = 0; wake(90); });
-    tasks.push(function () {
-      if (reduce.matches) return;
-      var vh = window.innerHeight;
-      var r = reel.getBoundingClientRect();
-      if (r.bottom < -50 || r.top > vh + 50) return;
-      var p = clamp((vh * 0.78 - r.top) / (vh * 0.55), 0, 1);
-      var maxRX = wide.matches ? 17 : 11;
-      var tRX = maxRX * (1 - p) + (pxOn ? -my * 4 : 0);
-      var tRY = pxOn ? mx * 6 : 0;
-      var tS = 0.93 + 0.07 * p;
-      cRX = lerp(cRX, tRX, 0.12); cRY = lerp(cRY, tRY, 0.1); cS = lerp(cS, tS, 0.12);
-      if (Math.abs(cRX - tRX) + Math.abs(cRY - tRY) + Math.abs(cS - tS) > 0.003) wake(2);
-      tilt.style.transform = 'rotateX(' + cRX.toFixed(3) + 'deg) rotateY(' + cRY.toFixed(3) + 'deg) scale(' + cS.toFixed(4) + ')';
-    });
-  }
-
   // Tombol "magnet"
   $$('.magnetic').forEach(function (el) {
     el.addEventListener('pointermove', function (e) {
@@ -576,12 +548,11 @@
     pxOn = on; pxY = -1;
     if (!on) {
       pxEls.forEach(function (p) { p.cur = 0; p.el.style.translate = ''; });
-      mx = my = 0;
     }
     wake(10);
   }
   onMQ(wide, refreshRich);
   onMQ(fine, refreshRich);
-  onMQ(reduce, function () { refreshRich(); if (tilt && reduce.matches) tilt.style.transform = 'none'; });
+  onMQ(reduce, refreshRich);
   window.addEventListener('resize', function () { pxY = -1; stepsY = -1; });
 })();
