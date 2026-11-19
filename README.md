@@ -36,7 +36,7 @@ robots.txt, sitemap.xml    petunjuk untuk Google
 | Teks, judul, FAQ | `index.html` (setiap bagian diberi komentar `<!-- ... -->`) |
 | Kata yang berganti di judul (kafe, toko, UMKM, ...) | `index.html`, bagian `HERO`: elemen `rot__w` dan teks `sr-only` di sebelahnya |
 | Harga & isi paket | `index.html`, bagian `HARGA` |
-| Nomor WhatsApp | `assets/js/main.js` baris `WA_NUMBER`, lalu cari-ganti `6285230732988` di `index.html` |
+| Nomor WhatsApp | `assets/js/main.js` baris `WA_NUMBER`, lalu cari-ganti `6285184885472` di `index.html` |
 | Email, GitHub, LinkedIn | `index.html`, bagian `KONTAK` dan `FOOTER` |
 | Warna | `assets/css/style.css`, bagian `:root` |
 

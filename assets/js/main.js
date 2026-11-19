@@ -3,12 +3,12 @@
    Interaksi & animasi halaman (tanpa framework).
    ---------------------------------------------------------
    Nomor WhatsApp tujuan formulir: ubah WA_NUMBER di bawah
-   (format internasional tanpa "+", mis. 6285230732988).
+   (format internasional tanpa "+", mis. 6285184885472).
    ========================================================= */
 (function () {
   'use strict';
 
-  var WA_NUMBER = '6285230732988';
+  var WA_NUMBER = '6285184885472';
 
   var doc = document.documentElement;
   var body = document.body;
