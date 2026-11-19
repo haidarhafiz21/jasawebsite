@@ -56,17 +56,12 @@
   window.addEventListener('scroll', function () { wake(40); }, { passive: true });
   window.addEventListener('resize', function () { wake(40); }, { passive: true });
 
-  /* ---------- Header: muncul/sembunyi mengikuti arah gulir, gelap di atas hero ---------- */
+  /* ---------- Header: muncul/sembunyi mengikuti arah gulir ---------- */
   var hdr = $('#hdr');
-  var heroCard = $('.hero__card');
-  var hdrHidden = false, hdrScrolled = false, hdrDark = hdr.classList.contains('hdr--dark'), anchorY = sy;
+  var hdrHidden = false, hdrScrolled = false, anchorY = sy;
   tasks.push(function () {
     var scrolled = sy > 8;
     if (scrolled !== hdrScrolled) { hdrScrolled = scrolled; hdr.classList.toggle('is-scrolled', scrolled); }
-    if (heroCard) {
-      var dark = heroCard.getBoundingClientRect().bottom > hdr.offsetHeight * 0.55;
-      if (dark !== hdrDark) { hdrDark = dark; hdr.classList.toggle('hdr--dark', dark); }
-    }
     if (doc.classList.contains('menu-open')) { anchorY = sy; return; }
     var dy = sy - anchorY;
     if (Math.abs(dy) > 8) {
