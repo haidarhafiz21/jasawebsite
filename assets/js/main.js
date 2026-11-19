@@ -405,6 +405,7 @@
         if (mode !== null && mode !== 'group') {
           setTimeout(function () { el.classList.add('is-done'); }, 1650 + n * 85);
         }
+        if (mode === 'group') setTimeout(function () { el.classList.add('is-settled'); }, 1800);
         $$('[data-count]', el).forEach(countUp);
       });
     }, { rootMargin: '0px 0px -10% 0px', threshold: 0.1 });
@@ -537,6 +538,34 @@
       var y = (center - vh / 2) * p.speed;
       if (Math.abs(y - p.cur) > 0.05) { p.cur = y; p.el.style.translate = '0 ' + y.toFixed(2) + 'px'; }
     }
+  });
+
+  // Kotak karya: miring 3D halus mengikuti kursor + kilau cahaya (gaya kartu Apple TV)
+  $$('.work__media').forEach(function (m) {
+    var stage = $('.work__stage', m);
+    if (!stage) return;
+    var tx = 0, ty = 0, cx = 0, cy = 0, inside = false, running = false;
+    var step = function () {
+      cx = lerp(cx, tx, 0.09);
+      cy = lerp(cy, ty, 0.09);
+      var done = Math.abs(cx - tx) + Math.abs(cy - ty) < 0.0006;
+      if (done && !inside) { cx = cy = 0; stage.style.transform = ''; running = false; return; }
+      stage.style.transform = 'rotateX(' + (-cy * 7).toFixed(3) + 'deg) rotateY(' + (cx * 10).toFixed(3) + 'deg)';
+      if (done) { running = false; return; }
+      requestAnimationFrame(step);
+    };
+    var kick = function () { if (!running) { running = true; requestAnimationFrame(step); } };
+    m.addEventListener('pointermove', function (e) {
+      if (!pxOn || e.pointerType !== 'mouse') return;
+      var r = m.getBoundingClientRect();
+      inside = true;
+      tx = clamp((e.clientX - r.left) / r.width - 0.5, -0.5, 0.5);
+      ty = clamp((e.clientY - r.top) / r.height - 0.5, -0.5, 0.5);
+      m.style.setProperty('--gx', ((tx + 0.5) * 100).toFixed(1) + '%');
+      m.style.setProperty('--gy', ((ty + 0.5) * 100).toFixed(1) + '%');
+      kick();
+    });
+    m.addEventListener('pointerleave', function () { inside = false; tx = 0; ty = 0; kick(); });
   });
 
   // Tombol "magnet"

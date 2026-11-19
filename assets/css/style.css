@@ -618,14 +618,9 @@ html:not(.js) .rot__w:not(:first-child) { display: none; }
 .browser--dark .browser__url { background: #2A272E; color: rgba(255, 255, 255, .6); }
 .browser__screen--fit img { height: 100%; object-fit: cover; object-position: top; }
 
-/* Gulir tampilan saat diarahkan kursor (CSS saja):
-   .pan turun setinggi layar, gambar naik setinggi dirinya → yang terlihat bagian bawah gambar. */
-.pan { position: absolute; inset: 0 0 auto 0; height: 100%; }
-.pan, .pan img { transition: transform 1.5s var(--ease); }
-@media (hover: hover) and (pointer: fine) {
-  .work__browser:hover .pan { transform: translateY(100%); transition-duration: 4.2s; transition-timing-function: cubic-bezier(.45, .05, .3, 1); }
-  .work__browser:hover .pan img { transform: translateY(-100%); transition-duration: 4.2s; transition-timing-function: cubic-bezier(.45, .05, .3, 1); }
-}
+/* Screenshot karya: selalu menampilkan bagian atas (tampilan terbaik) */
+.pan { position: absolute; inset: 0; }
+.pan img, .browser__screen--fit img { transform-origin: 50% 0; transition: transform 1.6s var(--ease); }
 
 .phone {
   margin: 0;
@@ -703,11 +698,32 @@ html:not(.js) .rot__w:not(:first-child) { display: none; }
   background: var(--accent);
   opacity: .07;
 }
+.work__stage { position: absolute; inset: 0; transform-style: preserve-3d; }
 .work__browser { position: absolute; left: 7%; top: 9%; width: 79%; }
 .work__phone { position: absolute; right: 5%; bottom: -7%; width: 23%; }
 .work--flip .work__browser { left: auto; right: 7%; }
 .work--flip .work__phone { right: auto; left: 5%; }
 .work--dark .work__deco::before { opacity: .22; }
+
+/* Kedalaman 3D saat kursor di atas kotak karya (terinspirasi kartu Apple TV):
+   panggung miring mengikuti kursor (JS), HP maju ke depan, kilau cahaya mengikuti kursor, gambar membesar halus. */
+.work__browser .browser__screen::after {
+  content: "";
+  position: absolute; inset: 0; z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(50% 58% at var(--gx, 50%) var(--gy, 0%), rgba(255, 255, 255, .6), transparent 64%);
+  mix-blend-mode: soft-light;
+  opacity: 0;
+  transition: opacity .7s ease;
+}
+@media (hover: hover) and (pointer: fine) and (min-width: 961px) {
+  .work__media { perspective: 1700px; }
+  .work__media:hover .browser__screen img { transform: scale(1.04); }
+  .work__media:hover .work__browser .browser__screen::after { opacity: 1; }
+  .js .work__media.is-settled:hover .browser { transform: translate3d(0, 0, 18px); box-shadow: 0 4px 10px rgba(30, 26, 21, .08), 0 40px 70px -24px rgba(30, 26, 21, .38), 0 70px 120px -50px rgba(30, 26, 21, .4); }
+  .js .work__media.is-settled:hover .phone { transform: translate3d(0, -8px, 70px); }
+  .js .work--dark .work__media.is-settled:hover .browser { box-shadow: 0 40px 80px -24px rgba(0, 0, 0, .6); }
+}
 .work--dark .work__deco::after { opacity: .1; }
 
 .work__meta {
@@ -1245,6 +1261,10 @@ html:not(.js) .rot__w:not(:first-child) { display: none; }
 }
 .js .work__media .phone { transform: translate3d(0, 110px, 0); transition-delay: .18s; }
 .js .work__media.is-in .browser, .js .work__media.is-in .phone { opacity: 1; transform: none; }
+.js .work__media.is-settled .browser, .js .work__media.is-settled .phone {
+  transition: opacity .6s ease, transform 1s var(--ease), box-shadow 1s var(--ease);
+  transition-delay: 0s;
+}
 
 /* foto tentang */
 .js .about__visual .about__photo { clip-path: inset(100% 0 0 0 round var(--r-lg)); transition: clip-path 1.5s var(--ease); }
@@ -1394,7 +1414,8 @@ html:not(.js) .rot__w:not(:first-child) { display: none; }
   .js .work__media .browser, .js .work__media .phone,
   .js .about__visual .about__card2, .js .about__visual .about__sticker { opacity: 1 !important; transform: none !important; }
   .js [data-reveal="curtain"], .js .about__visual .about__photo, .js .work__deco { clip-path: none !important; }
-  .pan, .pan img { transform: none !important; }
+  .pan img, .browser__screen--fit img { transform: none !important; }
+  .work__stage { transform: none !important; }
   .js .reel__tilt { transform: none !important; }
   .reel__screen .reel__img, .reel__slide { animation: none !important; }
   .reel__dot.is-on span { animation: none !important; transform: scaleX(1); }
