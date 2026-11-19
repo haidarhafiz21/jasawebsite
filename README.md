@@ -45,6 +45,7 @@ robots.txt, sitemap.xml    petunjuk untuk Google
 Setelah mengubah file, jalankan di folder ini:
 
 ```bash
+node tools/versi.mjs        # beri nomor versi baru pada CSS & JS (agar pengunjung tidak melihat versi lama dari cache)
 git add -A
 git commit -m "Perbarui isi website"
 git push
