@@ -457,24 +457,50 @@ html:not(.js) .rot__w:not(:first-child) { display: none; }
   border-radius: clamp(10px, 1.1vw, 14px);
   box-shadow: 0 2px 6px rgba(30, 26, 21, .06), 0 30px 60px -22px rgba(30, 26, 21, .32), 0 60px 110px -50px rgba(30, 26, 21, .35);
 }
-.reel__screen { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: var(--cream-2); }
+.reel__screen { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: var(--cream-2); cursor: pointer; }
+
+/* Setiap cuplikan: yang lama tetap utuh di bawah, yang baru terbuka seperti tirai dari bawah */
+.reel__slide { position: absolute; inset: 0; overflow: hidden; visibility: hidden; }
+.reel__slide.is-on, .reel__slide.is-off { visibility: visible; }
+.reel__slide.is-off { z-index: 1; }
+.reel__slide.is-on { z-index: 2; }
+.reel__slide.is-enter { animation: slideReveal 1s cubic-bezier(.76, 0, .24, 1) both, slideSettle 1.5s cubic-bezier(.22, 1, .36, 1) both; }
+.reel__phone .reel__slide.is-enter { animation-delay: .14s, .14s; }
+@keyframes slideReveal { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes slideSettle { from { scale: 1.08; } to { scale: 1; } }
+
 .reel__img {
   position: absolute; left: 0; top: 0;
   width: 100%;
-  opacity: 0;
-  transition: opacity 1.1s ease;
   -webkit-backface-visibility: hidden; backface-visibility: hidden;
 }
-.reel__img.is-on { opacity: 1; }
 .reel__screen .reel__img[data-pan="zoom"] { height: 100%; object-fit: cover; object-position: top; }
-.reel__screen .reel__img.is-on, .reel__screen .reel__img.is-off { animation: reelPan var(--dur, 5.6s) cubic-bezier(.45, .05, .3, 1) both; }
-.reel__screen .reel__img[data-pan="zoom"].is-on, .reel__screen .reel__img[data-pan="zoom"].is-off { animation-name: reelZoom; }
+.reel__screen .reel__slide.is-on .reel__img, .reel__screen .reel__slide.is-off .reel__img { animation: reelPan var(--dur, 5.6s) cubic-bezier(.45, .05, .3, 1) both; }
+.reel__screen .reel__slide.is-on .reel__img[data-pan="zoom"], .reel__screen .reel__slide.is-off .reel__img[data-pan="zoom"] { animation-name: reelZoom; }
 @keyframes reelPan { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, -15%, 0); } }
 @keyframes reelZoom { from { transform: scale(1.001); } to { transform: scale(1.06); } }
 .reel__phone { position: absolute; left: -8%; bottom: -13%; width: 24%; z-index: 2; }
 .js .is-loaded .reel__phone { animation: float 7s ease-in-out 2.2s infinite; }
 .reel__phone .reel__img { height: 100%; object-fit: cover; object-position: top; }
 .reel.is-paused .reel__img, .reel.is-paused .reel__dot span { animation-play-state: paused; }
+
+/* label "Lihat detail karya" saat kursor di atas gambar */
+.reel__hint {
+  position: absolute; right: 14px; bottom: 14px; z-index: 3;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 15px;
+  border-radius: 999px;
+  background: rgba(30, 26, 21, .82);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  color: #fff;
+  font: 600 .8rem/1 var(--sans);
+  opacity: 0; transform: translate3d(0, 10px, 0);
+  transition: opacity .35s ease, transform .6s var(--ease);
+  pointer-events: none;
+}
+.reel__hint .ic { width: 15px; height: 15px; }
+.reel__screen:hover .reel__hint { opacity: 1; transform: none; }
+@media (hover: none) { .reel__hint { display: none; } }
 
 .reel__bar {
   position: relative;
@@ -486,11 +512,17 @@ html:not(.js) .rot__w:not(:first-child) { display: none; }
   display: flex; align-items: baseline; gap: 10px;
   min-width: 0;
   font-size: .9rem;
-  transition: opacity .25s ease;
+  transition: opacity .3s ease, transform .5s var(--ease);
 }
-.reel__cap.is-swap { opacity: 0; }
+.reel__cap.is-swap { opacity: 0; transform: translate3d(0, 8px, 0); transition-duration: .2s, .2s; }
 .reel__no { font: italic 400 1.4rem/1 var(--serif); color: var(--clay); }
-.reel__cap b { font-weight: 700; color: var(--ink); white-space: nowrap; }
+.reel__name {
+  font-weight: 700; color: var(--ink); white-space: nowrap; text-decoration: none;
+  padding-bottom: 2px;
+  background: linear-gradient(currentColor, currentColor) left bottom / 0 1.5px no-repeat;
+  transition: background-size .5s var(--ease), color .3s;
+}
+.reel__name:hover { color: var(--clay); background-size: 100% 1.5px; }
 .reel__ctrl { display: flex; align-items: center; gap: 10px; }
 .reel__dots { display: flex; gap: 5px; }
 .reel__dot {
@@ -1364,6 +1396,6 @@ html:not(.js) .rot__w:not(:first-child) { display: none; }
   .js [data-reveal="curtain"], .js .about__visual .about__photo, .js .work__deco { clip-path: none !important; }
   .pan, .pan img { transform: none !important; }
   .js .reel__tilt { transform: none !important; }
-  .reel__screen .reel__img { animation: none !important; }
+  .reel__screen .reel__img, .reel__slide { animation: none !important; }
   .reel__dot.is-on span { animation: none !important; transform: scaleX(1); }
 }

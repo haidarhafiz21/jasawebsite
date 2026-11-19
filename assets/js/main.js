@@ -246,19 +246,22 @@
   if (reel) {
     var DUR = 5.6;
     reel.style.setProperty('--dur', DUR + 's');
-    var dSlides = $$('.reel__screen .reel__img', reel);
-    var mSlides = $$('.reel__phone .reel__img', reel);
+    var dSlides = $$('.reel__screen .reel__slide', reel);
+    var mSlides = $$('.reel__phone .reel__slide', reel);
+    var allSlides = dSlides.concat(mSlides);
     var dots = $$('.reel__dot', reel);
     var cap = $('#reelCap'), rNo = $('#reelNo'), rName = $('#reelName'), rCat = $('#reelCat'), rUrl = $('#reelUrl');
     var tgl = $('#reelToggle');
-    var ri = 0, userStop = false, hoverStop = false, focusStop = false, swapT = 0;
+    var screen = $('.reel__screen', reel);
+    var ri = 0, userStop = false, hoverStop = false, focusStop = false, swapT = 0, cleanT = 0;
     var auto = function () { return !reduce.matches && !userStop; };
 
-    var loadImg = function (img) {
-      var s = img.getAttribute('data-srcset');
+    var loadImg = function (slide) {
+      var img = slide.querySelector('img');
+      var s = img && img.getAttribute('data-srcset');
       if (s) { img.srcset = s; img.removeAttribute('data-srcset'); }
     };
-    var loadAll = function () { dSlides.concat(mSlides).forEach(loadImg); };
+    var loadAll = function () { allSlides.forEach(loadImg); };
     if (document.readyState === 'complete') setTimeout(loadAll, 400);
     else window.addEventListener('load', function () { setTimeout(loadAll, 400); });
 
@@ -266,22 +269,27 @@
       var p = userStop || hoverStop || focusStop || !reelVisible || document.hidden || reduce.matches;
       reel.classList.toggle('is-paused', p);
     };
+    var hideLeftovers = function () {
+      allSlides.forEach(function (s) { if (s.classList.contains('is-off')) s.classList.remove('is-off', 'is-enter'); });
+    };
 
     var show = function (n) {
       n = (n + dSlides.length) % dSlides.length;
       if (n === ri) return;
-      var leaving = [dSlides[ri], mSlides[ri]];
-      leaving.forEach(function (el) {
-        el.classList.remove('is-on');
-        el.classList.add('is-off');
-        setTimeout(function () { if (!el.classList.contains('is-on')) el.classList.remove('is-off'); }, 1300);
-      });
+      clearTimeout(cleanT);
+      hideLeftovers();
+      // cuplikan sekarang tetap utuh di bawah ...
+      [dSlides[ri], mSlides[ri]].forEach(function (s) { s.classList.remove('is-on'); s.classList.add('is-off'); });
       ri = n;
-      [dSlides[ri], mSlides[ri]].forEach(function (el) {
-        loadImg(el);
-        el.classList.remove('is-off');
-        el.classList.add('is-on');
+      // ... cuplikan baru terbuka di atasnya
+      [dSlides[ri], mSlides[ri]].forEach(function (s) {
+        loadImg(s);
+        s.classList.remove('is-off', 'is-enter');
       });
+      void reel.offsetWidth; // mulai ulang animasi
+      [dSlides[ri], mSlides[ri]].forEach(function (s) { s.classList.add('is-on', 'is-enter'); });
+      cleanT = setTimeout(hideLeftovers, 1400);
+
       dots.forEach(function (d, i) {
         var on = i === ri;
         d.classList.toggle('is-on', on);
@@ -293,11 +301,18 @@
       swapT = setTimeout(function () {
         rNo.textContent = (ri < 9 ? '0' : '') + (ri + 1);
         rName.textContent = d.getAttribute('data-name');
+        rName.setAttribute('href', d.getAttribute('data-target'));
         if (rCat) rCat.textContent = d.getAttribute('data-cat') || '';
         rUrl.textContent = d.getAttribute('data-url');
         cap.classList.remove('is-swap');
-      }, 230);
+      }, 260);
     };
+
+    // klik gambar → meluncur ke penjelasan lengkap karya itu
+    screen.addEventListener('click', function () {
+      var t = document.querySelector(dots[ri].getAttribute('data-target'));
+      if (t) scrollToTarget(t);
+    });
 
     dots.forEach(function (d, i) {
       d.addEventListener('click', function () { show(i); });
